@@ -5,22 +5,21 @@ import com.logmein.interview.badreddinesDemo.dao.model.GamePlayer;
 import com.logmein.interview.badreddinesDemo.dao.model.Player;
 
 public interface GameService {
-	/**
-	 * Create Game, register user and assign him to the game.
-	 * 
-	 * @param playerName2
-	 * @return the created game with it's new id
-	 */
-	Game createGame(String gameName);
 
-	boolean deleteGame(String gameName);
+    Game createGame(String gameName);
 
-	Iterable<Game> findAll();
+    boolean deleteGame(String gameName);
 
-	GamePlayer addPlayerToGame(String gameName, String playerName);
+    Iterable<Game> findAll();
 
-	boolean removePlayerFromGame(String gameName, String playerName);
+    GamePlayer addPlayerToGame(String gameName, String playerName);
 
-	Player findRegistredPlayerOrRegisterThis(String playerName);
+    boolean removePlayerFromGame(String gameName, String playerName);
 
+    Player findRegistredPlayerOrRegisterThis(String playerName);
+
+    Game findById(int id);
+
+    Game findByName(String name);
+    void deleteById(int id);
 }

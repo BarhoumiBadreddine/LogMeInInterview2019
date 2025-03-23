@@ -1,41 +1,17 @@
 package com.logmein.interview.badreddinesDemo.exceptions;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.ToString;
+
+import java.io.Serial;
+
+@ToString
+@AllArgsConstructor
+@Getter
 public class AppException extends RuntimeException {
+	@Serial
 	private static final long serialVersionUID = 1L;
-	private int status;
-	private String message;
-
-	public AppException(int status, String message) {
-		super();
-		this.status = status;
-		this.message = message;
-	}
-
-	public int getStatus() {
-		return status;
-	}
-
-	public void setStatus(int status) {
-		this.status = status;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder builder = new StringBuilder();
-		builder.append("AppException [status=");
-		builder.append(status);
-		builder.append(", message=");
-		builder.append(message);
-		builder.append("]");
-		return builder.toString();
-	}
-
+	private final int status;
+	private final String message;
 }

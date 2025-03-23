@@ -1,66 +1,61 @@
 package com.logmein.interview.badreddinesDemo.controllers;
 
+import com.logmein.interview.badreddinesDemo.dao.model.Game;
+import com.logmein.interview.badreddinesDemo.exceptions.AppException;
+import com.logmein.interview.badreddinesDemo.services.GameService;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.Assert;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import com.logmein.interview.badreddinesDemo.dao.model.Game;
-import com.logmein.interview.badreddinesDemo.exceptions.AppException;
-import com.logmein.interview.badreddinesDemo.services.GameService;
+import java.net.URI;
 
+@Slf4j
 @RestController
-@RequestMapping(value = "/game")
+@RequestMapping(value = "/games")
+@AllArgsConstructor
+@CrossOrigin(origins = "*")
 public class GameController {
-	@Autowired
-	@Qualifier(value = "gameService")
-	private GameService gameService;
 
-	@PostMapping(value = "/create")
-	public ResponseEntity<Object> createGame(@RequestParam(required = true) String gameName) {
-		Assert.hasText(gameName,
-				"[Assertion failed] - 'gameName' String argument must have text; it must not be null, empty, or blank");
-		try {
-			final Game newGame = this.gameService.createGame(gameName);
-			if (newGame == null) {
-				return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
-			} else {
-				return new ResponseEntity<>(newGame, HttpStatus.CREATED);
-			}
-		} catch (AppException e) {
-			// TODO:Should add logs and handle  exceptions by AOP
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.resolve(e.getStatus()));
-		} catch (Exception e) {
-			// TODO:Should add logs and handle  exceptions by AOP
-			e.printStackTrace();
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+    private GameService gameService;
 
-	}
+    @GetMapping(value = "/definition/{id}")
+    public ResponseEntity<Game> getGameById(@PathVariable() int id) {
+        log.info("Getting game with id: {}", id);
+        final Game game = this.gameService.findById(id);
+        return ResponseEntity.ok(game);
+    }
 
-	@DeleteMapping(value = "/delete")
-	public ResponseEntity<Object> deleteGame(@RequestParam(required = true) String gameName) {
-		try {
-			final boolean deleteGame = this.gameService.deleteGame(gameName);
-			if (deleteGame) {
-				return new ResponseEntity<>(HttpStatus.OK);
-			} else {
-				return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
-			}
-		} catch (AppException e) {
-			// TODO:Should add logs and handle  exceptions by AOP
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.resolve(e.getStatus()));
-		} catch (Exception e) {
-			// TODO:Should add logs and handle  exceptions by AOP
-			e.printStackTrace();
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
+    @GetMapping(value = "/search")
+    public ResponseEntity<Game> getGameByName(@RequestParam() String q) {
+        log.info("Searching for game with q: {}", q);
+        try {
+            final Game game = this.gameService.findById(Integer.parseInt(q));
+            return ResponseEntity.ok(game);
+        }
+        catch (NumberFormatException e) {
+            final Game game = this.gameService.findByName(q);
+            return ResponseEntity.ok(game);
+        }
+    }
+
+    @PostMapping("/definition")
+    public ResponseEntity<Void> createGame(@RequestParam() String gameName, UriComponentsBuilder uriBuilder) {
+        log.info("Creating game with name: {}", gameName);
+        final Game newGame = this.gameService.createGame(gameName);
+        final URI location = uriBuilder.path("/games/{id}").buildAndExpand(newGame.getGameId()).toUri();
+        return ResponseEntity.created(location).build();
+    }
+
+    @DeleteMapping("/definition/{id}")
+    public ResponseEntity<Void> deleteGame(@PathVariable int id) {
+        log.info("Deleting game with id: {}", id);
+        gameService.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 
 }
