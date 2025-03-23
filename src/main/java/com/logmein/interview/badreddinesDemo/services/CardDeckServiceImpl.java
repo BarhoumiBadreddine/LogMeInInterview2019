@@ -51,7 +51,7 @@ public class CardDeckServiceImpl implements CardDeckService {
 			this.addTheDeckGameCard(game, lstGameDeckCard);
 			return game;
 		} else {
-			throw new AppException(AppResponses.ENTITY_NOT_FOUND, "No Game with name[" + gameName + "]!");
+			throw new AppException(AppResponses.ENTITY_NOT_FOUND, "No Game with name[%s]!".formatted(gameName));
 		}
 
 	}
@@ -67,7 +67,7 @@ public class CardDeckServiceImpl implements CardDeckService {
 		final DeckOfCards deckOfCards = this.deckCardCreatorService.createDeckOfCards();
 		final List<Card> cards = deckOfCards.getCards();
 		final List<GameDeckCard> lstGameDeckCard = new ArrayList<GameDeckCard>();
-		cards.stream().forEach(card -> {
+		cards.forEach(card -> {
 			final GameDeckCard gameDeckCard = createGameDeckCard(game, card);
 			lstGameDeckCard.add(gameDeckCard);
 		});
@@ -130,11 +130,7 @@ public class CardDeckServiceImpl implements CardDeckService {
 	 */
 	int getMaxDeckGameCardId(final int gameId) {
 		final Optional<Integer> maxCardId = this.gameDeckCardRepo.findMaxIdCardIdByIdGameId(gameId);
-		if (maxCardId.isPresent()) {
-			return maxCardId.get();
-		} else {
-			return 0;
-		}
+        return maxCardId.orElse(0);
 	}
 
 	@Override
@@ -149,9 +145,7 @@ public class CardDeckServiceImpl implements CardDeckService {
 			final Map<Integer, Long> collect = findByIdGameId.stream()
 					.collect(Collectors.groupingBy(GameDeckCard::getCardSuit, Collectors.counting()));
 			final Map<CardSuit, Long> result = new HashMap<>();
-			collect.entrySet().forEach(e -> {
-				result.put(CardSuit.valueOf(e.getKey()), e.getValue());
-			});
+			collect.forEach((key, value) -> result.put(CardSuit.valueOf(key), value));
 			return result;
 		} else {
 			throw new AppException(AppResponses.ENTITY_NOT_FOUND, "There is no game with name[" + gameName + "]!");
@@ -175,16 +169,14 @@ public class CardDeckServiceImpl implements CardDeckService {
 							Collectors.groupingBy(GameDeckCard::getCardNumber, Collectors.counting())));
 
 			final Set<CardCount> result = new TreeSet<>(new CardCountComparator());
-			mapCardSuitCardNumberCount.entrySet().forEach(e -> {
-				final CardSuit cardSuit = CardSuit.valueOf(e.getKey());
-				final Map<Integer, Long> mapCardNumberCount = e.getValue();
-				mapCardNumberCount.entrySet().forEach(e1 -> {
-					Integer cardNumber = e1.getKey();
-					final CardCount cardCount = new CardCount(cardSuit, cardNumber, CardUtils.getCardType(cardNumber),
-							e1.getValue());
-					result.add(cardCount);
-				});
-			});
+			mapCardSuitCardNumberCount.forEach((key, mapCardNumberCount) -> {
+                final CardSuit cardSuit = CardSuit.valueOf(key);
+                mapCardNumberCount.forEach((cardNumber, value) -> {
+                    final CardCount cardCount = new CardCount(cardSuit, cardNumber, CardUtils.getCardType(cardNumber),
+                            value);
+                    result.add(cardCount);
+                });
+            });
 			return result;
 		} else {
 			throw new AppException(AppResponses.ENTITY_NOT_FOUND, "There is no game with name[" + gameName + "]!");
