@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.StreamSupport;
 
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -55,7 +56,7 @@ public class PlayerServiceImpl implements PlayerService {
 
 	@Transactional
 	@Override
-	public GamePlayerCard dealToPlayer(String gameName, String playerName) {
+	public GamePlayerCard dealToPlayer(@NonNull String gameName, @NonNull String playerName) {
 		Assert.hasText(gameName,
 				"[Assertion failed] - 'gameName' String argument must have text; it must not be null, empty, or blank");
 		final List<Game> lstGames = this.gameRepo.findByName(gameName);
@@ -73,25 +74,24 @@ public class PlayerServiceImpl implements PlayerService {
 				final long exactSizeIfKnown = findByIdGameId.spliterator().getExactSizeIfKnown();
 				if (exactSizeIfKnown == 0) {
 					throw new AppException(AppResponses.ENTITY_NOT_FOUND,
-							"Deck game is empty for game[" + gameName + "]!");
+                            "Deck game is empty for game[%s]!".formatted(gameName));
 				}
 
-				final List<GamePlayerCard> listGamePlayerCard = new ArrayList<>();
 				final GameDeckCard removedGameDeckCard = findByIdGameId.remove(0);
 				final int cardSuit = removedGameDeckCard.getCardSuit();
 				final int cardNumber = removedGameDeckCard.getCardNumber();
 				final int cardId = removedGameDeckCard.getId().getCardId();
 				final GamePlayerCard gamePlayerCard = create(gameId, cardSuit, cardNumber, cardId, playerId);
-				listGamePlayerCard.add(gamePlayerCard);
+
 				final GamePlayerCard savedGamePlayerCard = this.gamePlayerCardRepo.save(gamePlayerCard);
 				this.gameDeckCardRepo.delete(removedGameDeckCard);
 				return savedGamePlayerCard;
 			} else {
 				throw new AppException(AppResponses.ENTITY_NOT_FOUND,
-						"Player[" + playerName + "] Is not playing with Game[" + gameName + "]!");
+                        "Player[%s] Is not playing with Game[%s]!".formatted(playerName, gameName));
 			}
 		} else {
-			throw new AppException(AppResponses.ENTITY_NOT_FOUND, "No Game with name[" + gameName + "]!");
+			throw new AppException(AppResponses.ENTITY_NOT_FOUND, "No Game with name[%s]!".formatted(gameName));
 		}
 
 	}
