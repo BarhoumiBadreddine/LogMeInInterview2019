@@ -15,16 +15,26 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.4</version>
+		<version>4.0.3</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<java.version>17</java.version>
-		<maven.compiler.source>17</maven.compiler.source>
-		<maven.compiler.target>17</maven.compiler.target>
+		<java.version>25</java.version>
+		<maven.compiler.source>25</maven.compiler.source>
+		<maven.compiler.target>25</maven.compiler.target>
+		<lombok.version>1.18.40</lombok.version>
+		<spring-boot-starter-test.version>2.7.18</spring-boot-starter-test.version>
+		<junit-jupiter.version>5.12.1</junit-jupiter.version>
+		<junit-platform-engine.version>1.12.1</junit-platform-engine.version>
+		<junit-platform-launcher.version>1.12.1</junit-platform-launcher.version>
+		<bean-matchers.version>0.14</bean-matchers.version>
+		<archunit.version>1.4.0</archunit.version>
+		<maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+		<maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+		<maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
 	</properties>
 
 	<dependencies>
@@ -46,18 +56,13 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.36</version>
+			<version>${lombok.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<version>2.7.18</version> <!-- Use the latest 2.7.x version -->
+			<version>${spring-boot-starter-test.version}</version> <!-- Use the latest 2.7.x version -->
 			<scope>test</scope>
 			<exclusions>
 				<exclusion>
@@ -70,7 +75,7 @@
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter</artifactId>
-			<version>5.12.1</version>
+			<version>${junit-jupiter.version}</version>
 			<scope>test</scope>
 			<exclusions>
 				<exclusion>
@@ -83,7 +88,7 @@
 		<dependency>
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-engine</artifactId>
-			<version>1.12.1</version>
+			<version>${junit-platform-engine.version}</version>
 			<scope>test</scope>
 			<exclusions>
 				<exclusion>
@@ -96,20 +101,20 @@
 		<dependency>
 			<groupId>org.junit.platform</groupId>
 			<artifactId>junit-platform-launcher</artifactId>
-			<version>1.12.1</version>
+			<version>${junit-platform-launcher.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.bean-matchers</groupId>
 			<artifactId>bean-matchers</artifactId>
-			<version>0.14</version>
+			<version>${bean-matchers.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.tngtech.archunit/archunit-junit5 -->
 		<dependency>
 			<groupId>com.tngtech.archunit</groupId>
 			<artifactId>archunit</artifactId>
-			<version>1.4.0</version>
+			<version>${archunit.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<!-- <dependency>
@@ -122,18 +127,33 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven-compiler-plugin.version}</version>
+				<configuration>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version> <!-- Use your defined lombok version variable -->
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+
+			</plugin>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.5.2</version> <!-- Or latest -->
+				<version>${maven-surefire-plugin.version}</version> <!-- Or latest -->
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>3.6.0</version> <!-- Use the latest version -->
+				<version>${maven-checkstyle-plugin.version}</version> <!-- Use the latest version -->
 				<executions>
 					<execution>
 						<phase>verify</phase>
